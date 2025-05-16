@@ -1,0 +1,29 @@
+{
+  "sampleData": {
+    "23a540ec-f572-4c63-848f-0126068b6732": {
+      "attributes": "sample_data/HttpRequestAttributes_1.dwl"
+    },
+    "8fa9efc7-c810-4e4e-be9d-7b1faa3a5ff8": {
+      "vars-records": "sample_data/list_java_4.dwl",
+      "vars-sfResponse": "sample_data/BulkOperationResult_4.dwl"
+    },
+    "9d885e0c-ea50-4aa0-beb3-aa0d079617e2": {
+      "payload": "sample_data/list_account.dwl"
+    },
+    "edd315bc-6bc0-4ab3-a6e6-2dab54fb450d": {
+      "payload": "sample_data/json_1.json",
+      "vars-records": "sample_data/list_java_5.dwl"
+    },
+    "d409e15c-0cf5-4b45-91e2-2f30e112f19a": {
+      "attributes": "sample_data/httprequestattributes.dwl"
+    },
+    "9e27fa5f-2cff-4d37-8e3c-3a2b7d2f2eba": {
+      "payload": "sample_data/list_Account_1.dwl",
+      "vars-records": "sample_data/list_java_3.dwl",
+      "vars-epicorResponse": "sample_data/json.json"
+    },
+    "c46cba4f-8caa-461a-a537-82510c6b5843": {
+      "payload": "sample_data/list_defaultstringtype.json"
+    }
+  }
+}
