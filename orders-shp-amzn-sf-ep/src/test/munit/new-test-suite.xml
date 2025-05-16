@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="new-test-suite.xml" />
+	<munit:test name="orders-shp-amzn-sf-ep-test-suite-epFlow1Test" doc:id="8973d8be-683f-4734-acdc-47fc1dd51af8" description="Test" timeOut="180000">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to orders-shp-amzn-sf-epFlow1" doc:id="d8a646bb-0b73-4a5c-8993-46e998c44530" name="amznGetToken"/>
+		</munit:execution>
+		<munit:validation >
+			<set-payload value="#[payload]" doc:name="Set Payload" doc:id="1da225d1-6ebd-49c6-9e94-d9890db5bc8d" />
+			<logger level="INFO" doc:name="Logger" doc:id="120a7cd3-e76d-48c4-b8df-e2783d7f8884" message="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+<munit:test name="orders-shp-amzn-sf-ep-test-suite-amznGetTest" doc:id="f484a044-47c3-40fe-b4b8-372c3c3535fd" description="Test">
+		<munit:behavior >
+			<set-variable value='#["https://sellingpartnerapi-na.amazon.com/orders/v0/orders?OrderStatuses=Shipped&amp;MarketplaceIds=ATVPDKIKX0DER&amp;LastUpdatedAfter=2025-05-15T00:00:00Z"]' doc:name="Set Variable" doc:id="bfa014da-5577-4a96-bbed-5336e30f4e97" variableName="amznUrl" />
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to amznGet" doc:id="0f7f3ae8-7689-4eb2-a8dc-786c2b387424" name="amznGet"/>
+		</munit:execution>
+	</munit:test>
+
+</mule>

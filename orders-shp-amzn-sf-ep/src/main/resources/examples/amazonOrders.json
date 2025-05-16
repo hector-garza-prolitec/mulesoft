@@ -1,0 +1,49 @@
+{
+    "payload": {
+        "Orders": [
+            {
+                "BuyerInfo": {
+                    "BuyerEmail": "71v1sx7nrrvtgb6@marketplace.amazon.com"
+                },
+                "AmazonOrderId": "112-5379468-4513061",
+                "EarliestShipDate": "2025-04-14T06:59:59Z",
+                "SalesChannel": "Amazon.com",
+                "OrderStatus": "Shipped",
+                "NumberOfItemsShipped": 1,
+                "OrderType": "StandardOrder",
+                "IsPremiumOrder": false,
+                "IsPrime": false,
+                "FulfillmentChannel": "AFN",
+                "NumberOfItemsUnshipped": 0,
+                "HasRegulatedItems": false,
+                "IsReplacementOrder": "false",
+                "IsSoldByAB": false,
+                "LatestShipDate": "2025-04-14T06:59:59Z",
+                "ShipServiceLevel": "Expedited",
+                "IsISPU": false,
+                "MarketplaceId": "ATVPDKIKX0DER",
+                "PurchaseDate": "2025-04-13T16:57:34Z",
+                "ShippingAddress": {
+                    "StateOrRegion": "FL",
+                    "PostalCode": "32824-4498",
+                    "City": "ORLANDO",
+                    "CountryCode": "US"
+                },
+                "IsAccessPointOrder": false,
+                "SellerOrderId": "112-5379468-4513061",
+                "PaymentMethod": "Other",
+                "IsBusinessOrder": false,
+                "OrderTotal": {
+                    "CurrencyCode": "USD",
+                    "Amount": "60.71"
+                },
+                "PaymentMethodDetails": [
+                    "Standard"
+                ],
+                "IsGlobalExpressEnabled": false,
+                "LastUpdateDate": "2025-04-14T01:36:58Z",
+                "ShipmentServiceLevelCategory": "Expedited"
+            }
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+
+%dw 2.0
+output application/java 
+---
+{
+    "access_token": "Atza|IwEBIAqyjxNskYbf9sUSJz2o70RivU1IwbaU-WmeQ_q2EaBJflTq_nECvBI0HiEo0LNlZpWw_4_an9-zgC0P3pBUfgNa_4mQV_t0gRysw7Co4Kb3tc6gsRCuR9n2taTBYmlYQxlp3weD39M-AnW7ik4Bp_lNw6OkPqygMHNyYsHqZD7ZffublUy7-yuzB8xohSTFqWT3SR67XSM7oOkRRoONMnBvEXQWHR1H5wlCY8gl25fdPgCVCY1V8zZquWrXYQNbx735PJ3fPyWFy53n9_ZOykX3XClFR-grX-nsB2hUFTmMsQo2mHgqpKaupBUX8i6iB_ND5D_90DOWxB_xsFgWTuB0YMgcjIB3aXhebDo95KzhKw",
+    "refresh_token": "Atzr|IwEBIGZGE7OFG5J1kJtKfBtTZfBGnzfJc2i_6QPY_j8vDUepe42p07S_7OZbLD-Kows9hdD2jRjvyttpaTRKpvYV5ytg4L7CvNkD_Jhovs-sH5ubalHuIylD7_0gxseXBO8k3g3vS891oYdeEqcftDIF31OwVfxe3EIX5LL1gdh1IK_W1v-Z18gl4cYiWkYFPkQyy2RinUBLxcwkdFm8H3Lv0mgOs8iDcrYfmm2JLjjmd19z8LmTOXPnjTEUem5UvDaVCRU1HB8MPl2YiNBVju_f2-ivls7k1uiTRsbUBMPiNlCasKQd9X_sT9ehNIAT8fPkgevsMuH9N0jpwY6FHUxpyrJI",
+    "token_type": "bearer",
+    "expires_in": 3600
+}

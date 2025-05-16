@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:shopify="http://www.mulesoft.org/schema/mule/shopify" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/shopify http://www.mulesoft.org/schema/mule/shopify/current/mule-shopify.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2d99f391-978c-4bf2-aa03-e5d782e7c157" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<global-property doc:name="Global Property" doc:id="3602cc40-a9c9-4998-b09f-b0c715cb1bee" name="env" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="02991c4c-50af-4fef-92b1-09c577e8e200" file="${env}.properties" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="0fb52463-8635-4c2f-9768-e2a475f61989" file="${env}.secure.properties" key="${secure.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<global-property doc:name="Global Property" doc:id="228eb36e-b8c4-49b8-b87e-b4c4e78868fe" name="secure.key" value="MyMulesoftKey" />
+	<shopify:config name="Shopify_Connector_Config" doc:name="Shopify Connector Config" doc:id="1f0e2f40-f68c-4a96-98af-7df92198f66a" >
+		<shopify:basic-auth-connection username="e16d87b830b6a0d8421edaf4ad0c6526" password="61a6ca816c3c0f85a5572e05878f8037" baseUri="https://${shop}.myshopify.com" >
+			<shopify:default-headers >
+				<shopify:default-header key="X-Shopify-Access-Token" value="${secure::shopifyAccessToken}" />
+			</shopify:default-headers>
+		</shopify:basic-auth-connection>
+	</shopify:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="169120f5-359a-40c7-b1ae-e14dc5b40798" >
+		<http:request-connection host="api.amazon.com" protocol="HTTPS"/>
+	</http:request-config>
+	<flow name="orders-shp-amzn-sf-epFlow" doc:id="8cc73ce1-534b-407c-8ee9-c6e908659b54" >
+		<shopify:on-new-order-trigger doc:name="On new order trigger" doc:id="0b1bcb0b-1d21-443d-af8d-aee684d466d4" config-ref="Shopify_Connector_Config">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</shopify:on-new-order-trigger>
+		<choice doc:name="Choice" doc:id="e5ace687-e671-4ecd-8b8c-47d72d5642fc" >
+			<when expression='#[payload.fulfillment_status == "fulfilled" and payload.financial_status == "paid"]'>
+				<ee:transform doc:name="Transform Message" doc:id="cd762876-34a3-4559-b819-a6589e7cf7c5">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="3ff5446c-2eb9-4c5a-8c28-6096a9157522" message='#["Hi"]' />
+			</when>
+		</choice>
+	</flow>
+	<flow name="amznGetToken" doc:id="3f6599d7-8237-4563-a7bd-398adbeeaf93" >
+		<ee:transform doc:name="Transform Message" doc:id="cd6d5fec-b8d3-4636-925a-8d8923ec7129" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::URL
+var refreshToken = p("secure::amznRefreshToken")
+var clientID = p("secure::amznClientID")
+var clientSecret = p("secure::amznSecret")
+
+var data = {
+	"grant_type": encodeURI("refresh_token"),
+	"refresh_token": refreshToken,
+	"client_id": encodeURI(clientID),
+	"client_secret": encodeURI(clientSecret)
+}
+
+var x = data 
+  mapObject ((value, key) -> 
+  	(key): encodeURI(value) replace "%7C" with "|"
+   )
+   
+//x variable is an object
+//The pluck function builds an array in variable y in which each element holds the key/value pair of x
+//We need this to be in an array because the joinBy function doesn't work with Objects
+var y = x pluck (value, key) -> {Test: {Key: key, Value: value}}
+
+output text/plain
+
+---
+//We iterate the array y and join with ampersand
+y map((x) -> x.Test.Key ++ "=" ++ x.Test.Value) joinBy ("&")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="12857da8-4666-4e11-8570-2bdb9968a974" config-ref="HTTP_Request_configuration" url="https://api.amazon.com/auth/o2/token">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/x-www-form-urlencoded"
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="c76143bc-bcdd-4c40-984d-b877ce8c65ca" message='#["Amzn Token: " ++ write(payload,"application/json")]'/>
+		<ee:transform doc:name="Transform Message" doc:id="63708d2c-e23c-46bd-93c1-d30a76fe046e" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="amznToken" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.access_token]]></ee:set-variable>
+				<ee:set-variable variableName="amznRenewalDateTime" ><![CDATA[%dw 2.0
+
+import * from dw::core::Periods
+
+var expires_in = payload.expires_in
+var currentTime = now()
+
+output application/java
+---
+currentTime + seconds(expires_in)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="bcde14b5-5a2e-4d18-b969-429e420fb105" >
+				<logger level="INFO" doc:name="Logger" doc:id="1814bc9a-21c4-47ae-a4e1-6a3d262ccb05" message='#["Error occurred: " ++ write(error.errorMessage.payload,"application/json") as String]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="amznGet" doc:id="2bfd6327-9a1d-433e-b5c3-5de068fdf777" >
+		<set-variable value="#[payload]" doc:name="amznJSONBody" doc:id="6aae93d7-b72e-413f-8882-a512b07d4a9f" variableName="amznJSONBody"/>
+		<choice doc:name="Choice" doc:id="8b91bfef-fc65-46e1-a52a-5486a1ee652f" >
+			<when expression="#[vars.amznRenewalDateTime == null or (vars.amznRenewalDateTime != null and vars.amznRenewalDateTime &lt; now())]">
+				<flow-ref doc:name="amznGetToken" doc:id="34a97de3-c64e-4d12-8874-3e0b3ee22295" name="amznGetToken"/>
+			</when>
+		</choice>
+		<http:request method="GET" doc:name="Request" doc:id="8a49c8a6-ec64-4cda-b51d-d8f7229f2f51" config-ref="HTTP_Request_configuration" url="#[vars.amznUrl]" target="amznResponse">
+			<http:body ><![CDATA[#[vars.amznJSONBody]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"x-amz-access-token" : vars.amznToken
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="19c00411-044e-4d59-848e-03c7e7be88d6" message='#[%dw 2.0&#10;output text/plain&#10;---&#10;"Url: " ++ vars.amznUrl as String ++  &#10;"Amzn Response: " ++ write(vars.amznResponse, "application/json") as String]'/>
+	</flow>
+</mule>
