@@ -2,6 +2,10 @@
   "sampleData": {
     "63708d2c-e23c-46bd-93c1-d30a76fe046e": {
       "payload": "sample_data/java.dwl"
+    },
+    "34be47dd-2cd2-4b99-85ff-2117c455326b": {
+      "payload": "sample_data/json.json",
+      "vars-amznUrl": "sample_data/defaultstringtype.dwl"
     }
   }
 }

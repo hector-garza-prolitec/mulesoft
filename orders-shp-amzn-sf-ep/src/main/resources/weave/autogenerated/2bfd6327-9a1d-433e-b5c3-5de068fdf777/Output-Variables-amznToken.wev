@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_2bfd6327_9a1d_433e_b5c3_5de068fdf777_Output_Variables_amznToken = Any
+

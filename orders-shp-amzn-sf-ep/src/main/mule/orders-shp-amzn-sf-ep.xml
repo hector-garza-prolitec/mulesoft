@@ -115,20 +115,25 @@ currentTime + seconds(expires_in)]]></ee:set-variable>
 		</error-handler>
 	</flow>
 	<flow name="amznGet" doc:id="2bfd6327-9a1d-433e-b5c3-5de068fdf777" >
-		<set-variable value="#[payload]" doc:name="amznJSONBody" doc:id="6aae93d7-b72e-413f-8882-a512b07d4a9f" variableName="amznJSONBody"/>
 		<choice doc:name="Choice" doc:id="8b91bfef-fc65-46e1-a52a-5486a1ee652f" >
 			<when expression="#[vars.amznRenewalDateTime == null or (vars.amznRenewalDateTime != null and vars.amznRenewalDateTime &lt; now())]">
 				<flow-ref doc:name="amznGetToken" doc:id="34a97de3-c64e-4d12-8874-3e0b3ee22295" name="amznGetToken"/>
 			</when>
 		</choice>
 		<http:request method="GET" doc:name="Request" doc:id="8a49c8a6-ec64-4cda-b51d-d8f7229f2f51" config-ref="HTTP_Request_configuration" url="#[vars.amznUrl]" target="amznResponse">
-			<http:body ><![CDATA[#[vars.amznJSONBody]]]></http:body>
 			<http:headers ><![CDATA[#[output application/java
 ---
 {
 	"x-amz-access-token" : vars.amznToken
 }]]]></http:headers>
 		</http:request>
-		<logger level="INFO" doc:name="Logger" doc:id="19c00411-044e-4d59-848e-03c7e7be88d6" message='#[%dw 2.0&#10;output text/plain&#10;---&#10;"Url: " ++ vars.amznUrl as String ++  &#10;"Amzn Response: " ++ write(vars.amznResponse, "application/json") as String]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="19c00411-044e-4d59-848e-03c7e7be88d6" message='#[%dw 2.0&#10;output text/plain&#10;---&#10;"Url: " ++ vars.amznUrl as String ++  &#10;"Amzn Response: " ++ write(vars.amznResponse, "application/json") as String]' />
+		<set-variable value="#[%dw 2.0&#10;var page = payload&#10;&#10;output application/json&#10;---&#10;vars.amznPages ++ [{&#10;	(page)&#10;}]]" doc:name="amznPages" doc:id="b1455e96-e5ff-4d0d-8e53-86d5a19acbec" variableName="amznPages" />
+		<choice doc:name="Choice" doc:id="866987fc-6103-4ec3-9825-9320c8f3bc39" >
+			<when expression="#[!isEmpty(payload.payload.NextToken)]">
+				<set-variable value='#[%dw 2.0&#10;var oldToken = &#10;    ((   &#10;    	(&#10;			vars.amznUrl splitBy("?")&#10;    	)[1] &#10;    	splitBy("&amp;")&#10;    ) &#10;    filter ((item) -&gt; &#10;    	item startsWith("NextToken=")&#10;    )&#10;    map (x) -&gt; &#10; 		(&#10; 			x splitBy("=")&#10;     	)[1]&#10;     )[0]	&#10;     &#10;output application/json&#10;---&#10;if(isEmpty(oldToken))&#10;	vars.amznUrl ++ "&amp;NextToken=" ++ payload.payload.NextToken&#10; else&#10;	vars.amznUrl replace oldToken with payload.payload.NextToken]' doc:name="amznUrl" doc:id="34be47dd-2cd2-4b99-85ff-2117c455326b" variableName="amznUrl"/>
+				<flow-ref doc:name="amznGet" doc:id="20cd8247-95d8-468a-b8e3-b86af85bbad1" name="amznGet"/>
+			</when>
+		</choice>
 	</flow>
 </mule>
